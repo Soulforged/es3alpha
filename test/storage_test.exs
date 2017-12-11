@@ -3,9 +3,6 @@ defmodule Es3Alpha.StorageTest do
   use ExUnit.Case, async: false
 
   alias Es3Alpha.Storage
-  alias Es3Alpha.Storage.Store
-
-  @chunk_size   Application.get_env(:es3alpha, :chunk_size, 256)
 
   setup do
     Storage.clear()
@@ -30,16 +27,22 @@ defmodule Es3Alpha.StorageTest do
   test "can handle binary files" do
     data = File.read!("test/file.bin")
     Storage.write("binfile", data)
-    assert data = Storage.read("binfile")
+    assert ^data = Storage.read("binfile")
   end
 
   test "large enough files are spread between nodes" do
     data = File.read!("test/file.bin")
     Storage.write("binfile", data)
 
-    [node1, node2] = Application.get_env(:es3alpha, :nodes, [])
-    assert is_binary(:rpc.call(node1, Store, :read, ["binfile_1"]))
-    assert is_binary(:rpc.call(node2, Store, :read, ["binfile_2"]))
+    nodes = Application.get_env(:es3alpha, :nodes, [])
+    {:atomic, [{File, _, chunks}]} =
+      :mnesia.transaction(fn -> :mnesia.read {File, "binfile"} end)
+
+    used_nodes = for {node, _} <- chunks, do: node
+    [node1,node2|_] = used_nodes
+
+    assert Enum.member?(nodes, node1)
+    assert Enum.member?(nodes, node2)
   end
 
   test "non-available nodes are ignored" do
@@ -47,10 +50,10 @@ defmodule Es3Alpha.StorageTest do
     [first_node|_] = org_env
     Application.put_env(:es3alpha, :nodes, [first_node])
 
-    data = File.read!("test/file.bin")
+    data = File.read!("test/storage_test.exs")
     Storage.write("binfile", data)
 
-    assert data = Storage.read("binfile")
+    assert ^data = Storage.read("binfile")
 
     Application.put_env(:es3alpha, :nodes, org_env)
   end

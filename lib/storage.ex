@@ -86,7 +86,7 @@ defmodule Es3Alpha.Storage do
     [_, org_index] = Regex.run(@key_pattern, key)
     case :rpc.call(node, Store, :read, [key]) do
       {:badrpc, _} -> {:error, :missing_chunk}
-      chunk -> %{org_index: org_index, chunk: chunk}
+      chunk -> %{org_index: String.to_integer(org_index), chunk: chunk}
     end
   end
 

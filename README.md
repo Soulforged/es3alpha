@@ -1,20 +1,17 @@
 # Es3alpha
 
-**
+## Requirements
+* erlang 20 or greater
+* elixir 1.5 or greater
 
-## Installation
+## Setup
+mix deps.get && mix test
 
-If [available in Hex](https://hex.pm/docs/publish), the package can be installed
-by adding `es3alpha` to your list of dependencies in `mix.exs`:
+## Usage
+* Open a node on host1: iex --name primary@host1 -S mix
+* Open another node on hostx: iex --name primary@hostx -S mix
 
-```elixir
-def deps do
-  [
-    {:es3alpha, "~> 0.1.0"}
-  ]
-end
-```
+NOTE: at least one of those nodes should be listed in the config/config.exs file
+as: `config :es3alpha, nodes: [:"node1@127.0.0.1",:"node2@127.0.0.1"]`
 
-Documentation can be generated with [ExDoc](https://github.com/elixir-lang/ex_doc)
-and published on [HexDocs](https://hexdocs.pm). Once published, the docs can
-be found at [https://hexdocs.pm/es3alpha](https://hexdocs.pm/es3alpha).
+* Navigate to http://localhost:8080 for further instructions

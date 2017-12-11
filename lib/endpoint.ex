@@ -8,9 +8,7 @@ defmodule Es3Alpha.Endpoint do
     dispatch = :cowboy_router.compile([
       {:_, [
         {"/", Es3Alpha.RestHandlers.Home, []},
-        {"/files/:name", Es3Alpha.RestHandlers.File, []},
-        {"/files", Es3Alpha.RestHandlers.Files, []}
-
+        {"/files/[:name]", Es3Alpha.RestHandlers.Files, []}
     ]}])
     res = :cowboy.start_clear(:http, [port: 8080], %{env: %{dispatch: dispatch}})
     case res do
