@@ -1,3 +1,2 @@
-exclude = if Node.alive?, do: [], else: [distributed: true]
-
-ExUnit.start(exclude: exclude)
+Es3Alpha.Support.Node.start_nodes()
+ExUnit.start()

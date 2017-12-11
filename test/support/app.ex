@@ -1,4 +1,4 @@
-defmodule Es3Alpha do
+defmodule Es3Alpha.Support.App do
   @moduledoc false
 
   use Application
@@ -6,13 +6,13 @@ defmodule Es3Alpha do
   def start(_type, _args) do
     import Supervisor.Spec, warn: false
 
-    nodes = [node()]
-    :mnesia.create_schema(nodes)
+    this_node = [:"primary@127.0.0.1"]
+    nodes = Application.get_env(:es3alpha, :nodes, []) ++ this_node
+    :net_kernel.start(this_node)
     :mnesia.start()
-    :mnesia.create_table(File, [attributes: [:name, :chunks],
-      disc_copies: nodes])
-    :mnesia.create_table(Chunk, [attributes: [:key, :chunk],
-      disc_copies: nodes])
+    :mnesia.create_schema(nodes)
+    :mnesia.create_table(File, [attributes: [:name, :chunks], ram_copies: nodes])
+    :mnesia.create_table(Chunk, [attributes: [:key, :chunk], ram_copies: nodes])
     :mnesia.wait_for_tables([File, Chunk], 5000)
 
     children = [
